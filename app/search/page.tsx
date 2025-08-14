@@ -14,8 +14,9 @@ import { useSearchParams } from 'next/navigation'
 import { MentionInput } from '@/components/search/MentionInput'
 import { parseQueryMentions } from '@/lib/utils/mention-parser'
 
-// Force dynamic rendering
+// Force dynamic rendering to prevent prerendering issues with useSearchParams
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 function SearchContent() {
   const searchParams = useSearchParams()
