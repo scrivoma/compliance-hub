@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
-import { ChromaClient } from 'chromadb'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,37 +26,24 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Voice search request:', { query, limit, user: session.user.id })
     
-    // Connect to ChromaDB
-    const chromaHost = process.env.CHROMA_HOST || 'localhost'
-    const chromaPort = process.env.CHROMA_PORT || '8002'
-    const client = new ChromaClient({ 
-      path: `http://${chromaHost}:${chromaPort}` 
+    // Perform the search using Pinecone
+    const searchResults = await pineconeService.searchDocuments(query, {
+      topK: limit,
+      minSimilarity: 0.3
     })
     
-    // Get the collection
-    const collection = await client.getCollection({
-      name: 'documents'
-    })
-    
-    // Perform the search
-    const results = await collection.query({
-      queryTexts: [query],
-      nResults: limit,
-      include: ['documents', 'metadatas', 'distances']
-    })
-    
-    console.log('📊 ChromaDB search results:', {
+    console.log('📊 Pinecone search results:', {
       query,
-      resultCount: results.documents[0]?.length || 0,
-      distances: results.distances?.[0]?.slice(0, 3) // Log top 3 distances
+      resultCount: searchResults.length,
+      scores: searchResults.slice(0, 3).map(r => r.score) // Log top 3 scores
     })
     
-    // Format results for ElevenLabs
-    const formattedResults = results.documents[0]?.map((doc, index) => ({
-      content: doc,
-      metadata: results.metadatas?.[0]?.[index] || {},
-      distance: results.distances?.[0]?.[index] || 0
-    })) || []
+    // Format results for voice API
+    const formattedResults = searchResults.map((result) => ({
+      content: result.text,
+      metadata: result.metadata || {},
+      score: result.score
+    }))
     
     // Create a response that's easy for the AI to understand
     const searchSummary = formattedResults.length > 0 
@@ -78,12 +65,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Voice search error:', error)
     
-    // Check if it's a ChromaDB connection error
+    // Check if it's a Pinecone connection error
     if (error instanceof Error && error.message.includes('Connection')) {
       return NextResponse.json(
         { 
-          error: 'ChromaDB connection failed',
-          message: 'Please ensure ChromaDB is running on the configured host and port'
+          error: 'Pinecone connection failed',
+          message: 'Please check Pinecone configuration and API key'
         },
         { status: 503 }
       )

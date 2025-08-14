@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { llamaIndexDocumentService } from '@/lib/services/llamaindex-document-service'
 import { PrismaClient } from '@prisma/client'
-import { processDocumentWithFallback } from '@/lib/pdf/llamaindex-processor-stub'
-import { openai } from '@/lib/openai'
-import { ChromaClient } from 'chromadb'
+import { processDocumentWithFallback } from '@/lib/pdf/llamaindex-processor'
+import { enhancedChunkingService } from '@/lib/pdf/enhanced-chunking'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 
 const prisma = new PrismaClient()
 
@@ -42,17 +41,9 @@ export async function POST(request: NextRequest) {
       throw new Error('Document not found')
     }
 
-    // Process document with coordinate tracking using LlamaIndex
+    // Process document with LlamaIndex processor
     console.log('📊 Processing document with LlamaIndex...')
-    let processed
-    try {
-      const { processDocumentWithLlamaIndex } = await import('@/lib/pdf/llamaindex-processor')
-      processed = await processDocumentWithLlamaIndex(filepath)
-      console.log('✅ LlamaIndex processing successful')
-    } catch (error) {
-      console.warn('⚠️ LlamaIndex processing failed, using fallback:', error instanceof Error ? error.message : error)
-      processed = await processDocumentWithFallback(filepath)
-    }
+    const processed = await processDocumentWithFallback(filepath)
 
     // Update status to CHUNKING
     await prisma.document.update({
@@ -60,100 +51,51 @@ export async function POST(request: NextRequest) {
       data: { 
         processingStatus: 'CHUNKING',
         processingProgress: 30,
-        content: processed.text,
-        metadata: {
-          ...(document.metadata as Record<string, any> || {}),
-          ...(processed.metadata as Record<string, any> || {}),
-          chunksCount: processed.chunks.length
-        }
+        content: processed.text
       }
     })
 
-    // Update status to EMBEDDING
+    // Create enhanced chunks
+    const enhancedChunks = enhancedChunkingService.createEnhancedChunks(processed, {
+      chunkSize: 800,
+      contextRadius: 300,
+      preserveSentences: true,
+      preserveParagraphs: true
+    })
+    
+    // Update status to embedding
     await prisma.document.update({
       where: { id: documentId },
-      data: { 
+      data: {
         processingStatus: 'EMBEDDING',
-        processingProgress: 50
+        processingProgress: 60,
+        totalChunks: enhancedChunks.length
       }
     })
-
-    // Initialize ChromaDB with proper configuration
-    const chroma = new ChromaClient({
-      host: process.env.CHROMADB_HOST || 'localhost',
-      port: parseInt(process.env.CHROMADB_PORT || '8002')
-    })
-
-    let collection
-    try {
-      collection = await chroma.getCollection({ 
-        name: 'compliance_documents_llamaindex' 
-      })
-      console.log('✅ Using existing ChromaDB collection')
-    } catch {
-      console.log('🔄 Creating new ChromaDB collection')
-      collection = await chroma.createCollection({ 
-        name: 'compliance_documents_llamaindex',
-        metadata: { "hnsw:space": "cosine" }
-      })
-    }
-
-    // Process chunks with embeddings
-    const totalChunks = processed.chunks.length
-    let processedChunks = 0
-
-    for (let i = 0; i < processed.chunks.length; i++) {
-      const chunk = processed.chunks[i]
-      const citationId = `${documentId}_cite_${i}`
-      
-      try {
-        // Generate embedding
-        const response = await openai.embeddings.create({
-          model: 'text-embedding-3-small',
-          input: chunk.text,
-        })
-
-        const embedding = response.data[0].embedding
-
-        // Store in ChromaDB
-        await collection.add({
-          ids: [citationId],
-          embeddings: [embedding],
-          documents: [chunk.text],
-          metadatas: [{
-            documentId: document.id,
-            title: document.title,
-            chunkIndex: chunk.metadata.chunk_index,
-            pageNumber: chunk.metadata.page_number,
-            startChar: chunk.metadata.start_char,
-            endChar: chunk.metadata.end_char,
-            coordinates: JSON.stringify(chunk.metadata.coordinates),
-            state: document.state,
-            processingMethod: processed.metadata.processingMethod,
-            citationId: citationId
-          }]
-        })
-
-        processedChunks++
-        
-        // Update progress every 10 chunks or at the end
-        if (processedChunks % 10 === 0 || processedChunks === totalChunks) {
-          const progress = 50 + Math.floor((processedChunks / totalChunks) * 45) // 50-95%
-          await prisma.document.update({
-            where: { id: documentId },
-            data: { 
-              processingProgress: progress,
-              processedChunks: processedChunks,
-              totalChunks: totalChunks
-            }
-          })
-          console.log(`📊 Progress: ${processedChunks}/${totalChunks} chunks (${progress}%)`)
-        }
-        
-      } catch (error) {
-        console.error(`❌ Error processing chunk ${i + 1}:`, error)
+    
+    // Prepare chunks for Pinecone
+    const pineconeChunks = enhancedChunks.map(chunk => ({
+      text: chunk.text,
+      contextBefore: chunk.contextBefore,
+      contextAfter: chunk.contextAfter,
+      pageNumber: chunk.pageNumber,
+      sectionTitle: chunk.sectionTitle,
+      chunkIndex: chunk.chunkIndex,
+      originalStartChar: chunk.originalStartChar,
+      originalEndChar: chunk.originalEndChar
+    }))
+    
+    // Store in Pinecone
+    await pineconeService.upsertDocumentChunks(
+      document.id,
+      pineconeChunks,
+      {
+        title: document.title,
+        state: document.state,
+        verticals: document.verticals?.map(v => v.verticalId) || [],
+        documentTypes: document.documentTypes?.map(dt => dt.documentTypeId) || []
       }
-    }
+    )
 
     // Mark as completed
     await prisma.document.update({
@@ -161,16 +103,21 @@ export async function POST(request: NextRequest) {
       data: { 
         processingStatus: 'COMPLETED',
         processingProgress: 100,
-        vectorId: `llamaindex_${documentId}`
+        vectorId: `pinecone_${documentId}`,
+        metadata: {
+          chunksCount: enhancedChunks.length,
+          processingVersion: '3.0-pinecone-background',
+          ...(document.metadata && typeof document.metadata === 'object' ? document.metadata as Record<string, any> : {})
+        }
       }
     })
 
     console.log('🎉 Background processing completed successfully')
-    console.log(`📊 Created ${processedChunks} citation-ready chunks`)
+    console.log(`📊 Created ${enhancedChunks.length} enhanced chunks in Pinecone`)
 
     return NextResponse.json({
       success: true,
-      chunksCreated: processedChunks,
+      chunksCreated: enhancedChunks.length,
       message: 'Document processing completed successfully'
     })
 

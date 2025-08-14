@@ -4,7 +4,7 @@ import { join } from 'path'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
 import { PrismaClient } from '@prisma/client'
-import { processDocumentWithFallback } from '@/lib/pdf/llamaindex-processor-stub'
+import { processDocumentWithFallback } from '@/lib/pdf/llamaindex-processor'
 import { enhancedChunkingService } from '@/lib/pdf/enhanced-chunking'
 import { pineconeService } from '@/lib/pinecone/pinecone-service'
 

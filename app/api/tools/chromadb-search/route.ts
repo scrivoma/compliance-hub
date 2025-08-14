@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
-import { ChromaDBSearchTool } from '@/lib/tools/chromadb-search'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,25 +16,31 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { functionCall } = body
+    const { query, topK = 10, minSimilarity = 0.3, states } = body
 
-    if (!functionCall || functionCall.name !== 'chromadb_search') {
+    if (!query || typeof query !== 'string') {
       return NextResponse.json(
-        { error: 'Invalid function call' },
+        { error: 'Query is required and must be a string' },
         { status: 400 }
       )
     }
 
-    // Parse the function call parameters
-    const params = ChromaDBSearchTool.parseFunctionCall(functionCall)
+    // Execute the search using Pinecone
+    const results = await pineconeService.searchDocuments(query, {
+      topK,
+      minSimilarity,
+      states
+    })
     
-    // Execute the search
-    const result = await ChromaDBSearchTool.search(params)
-    
-    return NextResponse.json(result)
+    return NextResponse.json({
+      success: true,
+      query,
+      results,
+      total: results.length
+    })
 
   } catch (error) {
-    console.error('ChromaDB search API error:', error)
+    console.error('Pinecone search API error:', error)
     return NextResponse.json(
       { 
         error: 'Search failed', 
