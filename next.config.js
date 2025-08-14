@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   typescript: {
+    // Ignore build errors for faster deployment
     ignoreBuildErrors: true
   },
   async headers() {
