@@ -4,6 +4,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
+  experimental: {
+    // Disable static generation for pages with useSearchParams
+    missingSuspenseWithCSRBailout: false,
+  },
   async headers() {
     return [
       {
