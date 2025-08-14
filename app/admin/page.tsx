@@ -17,46 +17,61 @@ export default function AdminPage() {
   }
 
   const handleSeedDropdowns = async () => {
-    setSeedingStatus({loading: true, message: 'Seeding reference data...'})
+    setSeedingStatus({loading: true, message: 'Checking database connection...'})
     
     try {
-      // Seed verticals
-      const verticalsResponse = await fetch('/api/verticals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'seed', key: 'dev-only' })
+      // First, test if we can access the API endpoints at all
+      setSeedingStatus({loading: true, message: 'Testing API connectivity...'})
+      
+      const testResponse = await fetch('/api/verticals', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       })
       
-      if (!verticalsResponse.ok) {
-        throw new Error('Failed to seed verticals')
+      if (!testResponse.ok) {
+        setSeedingStatus({loading: false, message: 'API endpoints are protected. Dropdowns will use built-in fallback data automatically.'})
+        setTimeout(() => setSeedingStatus({loading: false, message: ''}), 7000)
+        return
       }
       
-      // Seed document types
-      const docTypesResponse = await fetch('/api/document-types', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'seed', key: 'dev-only' })
-      })
-      
-      if (!docTypesResponse.ok) {
-        throw new Error('Failed to seed document types')
+      // Check if data already exists
+      const data = await testResponse.json()
+      if (data.verticals && data.verticals.length > 0) {
+        setSeedingStatus({loading: false, message: 'Database already contains reference data. No seeding needed.'})
+        setTimeout(() => setSeedingStatus({loading: false, message: ''}), 5000)
+        return
       }
       
-      setSeedingStatus({loading: false, message: 'Reference data seeded successfully! Please refresh the upload form.'})
+      // Attempt to seed
+      setSeedingStatus({loading: true, message: 'Seeding reference data...'})
       
-      // Clear success message after 5 seconds
-      setTimeout(() => {
-        setSeedingStatus({loading: false, message: ''})
-      }, 5000)
+      const [verticalsResponse, docTypesResponse] = await Promise.all([
+        fetch('/api/verticals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'seed', key: 'dev-only' })
+        }),
+        fetch('/api/document-types', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'seed', key: 'dev-only' })
+        })
+      ])
+      
+      if (!verticalsResponse.ok || !docTypesResponse.ok) {
+        throw new Error('Seeding endpoints are protected by Vercel')
+      }
+      
+      setSeedingStatus({loading: false, message: 'Database seeded successfully! Dropdowns will now use live data.'})
+      setTimeout(() => setSeedingStatus({loading: false, message: ''}), 5000)
       
     } catch (error) {
-      console.error('Seeding error:', error)
-      setSeedingStatus({loading: false, message: 'Failed to seed reference data. Please try again.'})
-      
-      // Clear error message after 5 seconds
-      setTimeout(() => {
-        setSeedingStatus({loading: false, message: ''})
-      }, 5000)
+      console.error('Seeding process failed:', error)
+      setSeedingStatus({
+        loading: false, 
+        message: 'Unable to seed database. Dropdowns will automatically use built-in fallback data.'
+      })
+      setTimeout(() => setSeedingStatus({loading: false, message: ''}), 7000)
     }
   }
 
@@ -123,7 +138,7 @@ export default function AdminPage() {
                 ) : (
                   <>
                     <Settings className="h-4 w-4 mr-2" />
-                    Seed Dropdowns
+                    Check Database
                   </>
                 )}
               </button>

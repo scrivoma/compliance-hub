@@ -9,7 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "cleanup:all": "tsx scripts/cleanup-all.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

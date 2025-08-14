@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Upload, CheckCircle, AlertCircle, Link, FileText } from 'lucide-react'
+import { getVerticals, getDocumentTypes } from '@/lib/constants/reference-data'
 
 interface TestResult {
   success: boolean
@@ -24,12 +25,14 @@ interface Vertical {
   id: string
   name: string
   displayName: string
+  description?: string
 }
 
 interface DocumentType {
   id: string
   name: string
   displayName: string
+  description?: string
 }
 
 interface LlamaIndexUploadFormProps {
@@ -51,11 +54,53 @@ export function LlamaIndexUploadForm({ onUploadSuccess }: LlamaIndexUploadFormPr
   const [loading, setLoading] = useState(false)
   const [processingDocuments, setProcessingDocuments] = useState<ProcessingStatus[]>([])
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null)
+  const [dataLoadingStatus, setDataLoadingStatus] = useState<{
+    verticalsSource: 'api' | 'static' | null
+    documentTypesSource: 'api' | 'static' | null
+    hasErrors: boolean
+  }>({
+    verticalsSource: null,
+    documentTypesSource: null,
+    hasErrors: false
+  })
 
   useEffect(() => {
-    fetchVerticals()
-    fetchDocumentTypes()
+    loadReferenceData()
   }, [])
+
+  const loadReferenceData = async () => {
+    try {
+      const [verticalsResult, documentTypesResult] = await Promise.all([
+        getVerticals(),
+        getDocumentTypes()
+      ])
+      
+      setVerticals(verticalsResult.data)
+      setDocumentTypes(documentTypesResult.data)
+      
+      setDataLoadingStatus({
+        verticalsSource: verticalsResult.source,
+        documentTypesSource: documentTypesResult.source,
+        hasErrors: Boolean(verticalsResult.error || documentTypesResult.error)
+      })
+      
+      // Log information about data sources
+      if (verticalsResult.source === 'static' || documentTypesResult.source === 'static') {
+        console.log('ℹ️ Reference data status:', {
+          verticals: `${verticalsResult.source}${verticalsResult.error ? ` (${verticalsResult.error})` : ''}`,
+          documentTypes: `${documentTypesResult.source}${documentTypesResult.error ? ` (${documentTypesResult.error})` : ''}`
+        })
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to load reference data:', error)
+      setDataLoadingStatus({
+        verticalsSource: 'static',
+        documentTypesSource: 'static',
+        hasErrors: true
+      })
+    }
+  }
 
   useEffect(() => {
     if (file && !title) {
@@ -81,29 +126,6 @@ export function LlamaIndexUploadForm({ onUploadSuccess }: LlamaIndexUploadFormPr
     }
   }, [url, title, inputMode])
 
-  const fetchVerticals = async () => {
-    try {
-      const response = await fetch('/api/verticals')
-      if (response.ok) {
-        const data = await response.json()
-        setVerticals(data.verticals)
-      }
-    } catch (error) {
-      console.error('Failed to fetch verticals:', error)
-    }
-  }
-
-  const fetchDocumentTypes = async () => {
-    try {
-      const response = await fetch('/api/document-types')
-      if (response.ok) {
-        const data = await response.json()
-        setDocumentTypes(data.documentTypes)
-      }
-    } catch (error) {
-      console.error('Failed to fetch document types:', error)
-    }
-  }
 
   const handleUpload = async () => {
     if (inputMode === 'file' && !file) return
@@ -394,9 +416,16 @@ export function LlamaIndexUploadForm({ onUploadSuccess }: LlamaIndexUploadFormPr
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Verticals *
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Verticals *
+            </label>
+            {dataLoadingStatus.verticalsSource === 'static' && (
+              <span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-800">
+                Using offline data
+              </span>
+            )}
+          </div>
           <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700">
             {verticals.map((vertical) => (
               <label key={vertical.id} className="flex items-center space-x-2">
@@ -422,9 +451,16 @@ export function LlamaIndexUploadForm({ onUploadSuccess }: LlamaIndexUploadFormPr
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Document Types *
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Document Types *
+            </label>
+            {dataLoadingStatus.documentTypesSource === 'static' && (
+              <span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-800">
+                Using offline data
+              </span>
+            )}
+          </div>
           <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700">
             {documentTypes.map((docType) => (
               <label key={docType.id} className="flex items-center space-x-2">
