@@ -45,19 +45,22 @@ export class PineconeService {
   private index: any
 
   constructor() {
-    const apiKey = process.env.PINECONE_API_KEY
+    const apiKey = process.env.PINECONE_API_KEY || 'dummy-key-for-build'
     this.indexName = process.env.PINECONE_INDEX_NAME || 'playbook2026'
-    
-    if (!apiKey) {
-      throw new Error('PINECONE_API_KEY environment variable is required')
-    }
 
     this.pinecone = new Pinecone({
       apiKey
     })
   }
 
+  private validatePinecone() {
+    if (!process.env.PINECONE_API_KEY) {
+      throw new Error('PINECONE_API_KEY environment variable is required')
+    }
+  }
+
   async initIndex() {
+    this.validatePinecone()
     if (!this.index) {
       console.log('🌲 Initializing Pinecone index:', this.indexName)
       this.index = this.pinecone.index(this.indexName)
