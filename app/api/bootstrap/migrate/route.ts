@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { execSync } from 'child_process'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 Database migration endpoint called')
+    console.log('🔄 Database schema initialization endpoint called')
     
-    // This is a simple approach - in production you'd want more safety checks
+    // This is a bootstrap approach - create tables using raw SQL
     const migrationKey = process.env.MIGRATION_KEY || 'dev-only'
     const { key } = await request.json()
     
@@ -16,31 +18,71 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.log('⚙️ Running Prisma database push...')
+    console.log('⚙️ Creating database schema...')
     
-    // Run prisma db push to sync schema
-    try {
-      const output = execSync('npx prisma db push --accept-data-loss', {
-        cwd: process.cwd(),
-        encoding: 'utf8',
-        timeout: 30000 // 30 second timeout
-      })
+    // Create tables using raw SQL - simplified version for bootstrap
+    const createTablesSQL = `
+      CREATE TABLE IF NOT EXISTS "User" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "email" TEXT NOT NULL UNIQUE,
+        "password" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "organization" TEXT NOT NULL,
+        "role" TEXT NOT NULL DEFAULT 'USER',
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
       
-      console.log('✅ Database schema updated successfully')
-      console.log('Output:', output)
+      CREATE TABLE IF NOT EXISTS "Category" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL UNIQUE,
+        "description" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS "Vertical" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL UNIQUE,
+        "displayName" TEXT NOT NULL,
+        "description" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS "DocumentType" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL UNIQUE,
+        "displayName" TEXT NOT NULL,
+        "description" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `
+    
+    try {
+      // Execute the SQL to create basic tables
+      await prisma.$executeRawUnsafe(createTablesSQL)
+      
+      console.log('✅ Basic database schema created successfully')
+      
+      // Test by counting users
+      const userCount = await prisma.user.count()
+      console.log(`📊 User count: ${userCount}`)
       
       return NextResponse.json({
         success: true,
-        message: 'Database schema updated successfully',
-        output
+        message: 'Database schema initialized successfully',
+        userCount,
+        status: 'ready'
       })
       
-    } catch (execError) {
-      console.error('❌ Migration failed:', execError)
+    } catch (sqlError) {
+      console.error('❌ SQL execution failed:', sqlError)
       return NextResponse.json(
         { 
-          error: 'Migration failed',
-          details: execError instanceof Error ? execError.message : 'Unknown error'
+          error: 'Schema creation failed',
+          details: sqlError instanceof Error ? sqlError.message : 'Unknown error'
         },
         { status: 500 }
       )
@@ -55,5 +97,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
