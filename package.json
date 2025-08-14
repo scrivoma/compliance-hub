@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "cleanup:all": "tsx scripts/cleanup-all.ts"
+    "cleanup:all": "tsx scripts/cleanup-all.ts",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
