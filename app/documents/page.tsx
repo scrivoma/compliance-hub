@@ -7,7 +7,6 @@ import { Suspense } from 'react'
 
 // Force dynamic rendering to prevent prerendering issues with useSearchParams
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 function DocumentsContent() {
   const searchParams = useSearchParams()
