@@ -4,15 +4,60 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { DocumentList } from '@/components/documents/document-list'
 import { LlamaIndexUploadForm } from '@/components/admin/llamaindex-upload-form'
-import { Upload, Database, Shield, AlertCircle } from 'lucide-react'
+import { Upload, Database, Shield, AlertCircle, Settings } from 'lucide-react'
 
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const [activeTab, setActiveTab] = useState<'upload' | 'manage'>('upload')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [seedingStatus, setSeedingStatus] = useState<{loading: boolean, message: string}>({loading: false, message: ''})
 
   const handleUploadSuccess = () => {
     setRefreshKey(prev => prev + 1)
+  }
+
+  const handleSeedDropdowns = async () => {
+    setSeedingStatus({loading: true, message: 'Seeding reference data...'})
+    
+    try {
+      // Seed verticals
+      const verticalsResponse = await fetch('/api/verticals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'seed', key: 'dev-only' })
+      })
+      
+      if (!verticalsResponse.ok) {
+        throw new Error('Failed to seed verticals')
+      }
+      
+      // Seed document types
+      const docTypesResponse = await fetch('/api/document-types', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'seed', key: 'dev-only' })
+      })
+      
+      if (!docTypesResponse.ok) {
+        throw new Error('Failed to seed document types')
+      }
+      
+      setSeedingStatus({loading: false, message: 'Reference data seeded successfully! Please refresh the upload form.'})
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSeedingStatus({loading: false, message: ''})
+      }, 5000)
+      
+    } catch (error) {
+      console.error('Seeding error:', error)
+      setSeedingStatus({loading: false, message: 'Failed to seed reference data. Please try again.'})
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setSeedingStatus({loading: false, message: ''})
+      }, 5000)
+    }
   }
 
   // Show loading state while checking authentication
@@ -63,6 +108,30 @@ export default function AdminPage() {
               <p className="mt-2 text-gray-600 dark:text-gray-400">
                 Upload PDFs or scrape content from URLs with advanced citation tracking and manage your document collection.
               </p>
+            </div>
+            <div className="flex flex-col items-end space-y-2">
+              <button
+                onClick={handleSeedDropdowns}
+                disabled={seedingStatus.loading}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {seedingStatus.loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 dark:border-gray-300 mr-2"></div>
+                    Seeding...
+                  </>
+                ) : (
+                  <>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Seed Dropdowns
+                  </>
+                )}
+              </button>
+              {seedingStatus.message && (
+                <p className={`text-xs ${seedingStatus.message.includes('success') ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {seedingStatus.message}
+                </p>
+              )}
             </div>
           </div>
         </div>
