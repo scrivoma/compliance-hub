@@ -6,7 +6,7 @@ import { writeFile, mkdir, readFile } from 'fs/promises'
 import { join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { extractTextFromPDF, chunkText } from '@/lib/pdf/processor'
-import { vectorDB } from '@/lib/vector-db/chroma'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 
 const prisma = new PrismaClient()
 
@@ -223,9 +223,6 @@ async function processDocumentAsync(documentId: string, filePath: string) {
   try {
     console.log('Enhanced upload - Starting actual processing for:', documentId)
     
-    // Initialize vector DB
-    await vectorDB.initialize()
-    
     // Update status to extracting
     await prisma.document.update({
       where: { id: documentId },
@@ -266,42 +263,42 @@ async function processDocumentAsync(documentId: string, filePath: string) {
       }
     })
 
-    // Add chunks to vector database
-    console.log('Enhanced upload - Adding chunks to vector DB...')
-    const vectorIds: string[] = []
-    
-    for (let i = 0; i < chunks.length; i++) {
-      const chunkId = `${documentId}-chunk-${i}`
-      
-      try {
-        await vectorDB.addDocument({
-          id: chunkId,
-          content: chunks[i],
-          metadata: {
-            documentId: documentId,
-            chunkIndex: i,
-            totalChunks: chunks.length
-          }
-        })
-        
-        vectorIds.push(chunkId)
-        
-        // Update progress
-        const progress = 75 + Math.floor((i + 1) / chunks.length * 25)
-        await prisma.document.update({
-          where: { id: documentId },
-          data: {
-            processedChunks: i + 1,
-            processingProgress: progress
-          }
-        })
-        
-        console.log(`Enhanced upload - Processed chunk ${i + 1}/${chunks.length}`)
-      } catch (error) {
-        console.error(`Enhanced upload - Error processing chunk ${i + 1}:`, error)
-        throw error
+    // Get document details for metadata
+    const document = await prisma.document.findUnique({
+      where: { id: documentId },
+      include: {
+        verticals: true,
+        documentTypes: true
       }
+    })
+
+    if (!document) {
+      throw new Error('Document not found')
     }
+
+    // Prepare chunks for Pinecone
+    const pineconeChunks = chunks.map((chunk, index) => ({
+      text: chunk,
+      contextBefore: '',
+      contextAfter: '',
+      pageNumber: 1,
+      sectionTitle: '',
+      chunkIndex: index,
+      originalStartChar: 0,
+      originalEndChar: chunk.length
+    }))
+
+    // Store in Pinecone
+    await pineconeService.upsertDocumentChunks(
+      document.id,
+      pineconeChunks,
+      {
+        title: document.title,
+        state: document.state,
+        verticals: document.verticals?.map(v => v.verticalId) || [],
+        documentTypes: document.documentTypes?.map(dt => dt.documentTypeId) || []
+      }
+    )
 
     // Mark as completed
     await prisma.document.update({
@@ -309,7 +306,11 @@ async function processDocumentAsync(documentId: string, filePath: string) {
       data: {
         processingStatus: 'COMPLETED',
         processingProgress: 100,
-        vectorId: vectorIds[0] // Store first chunk ID as reference
+        vectorId: `pinecone_${documentId}`,
+        metadata: {
+          chunksCount: chunks.length,
+          processingVersion: '3.0-pinecone-enhanced'
+        }
       }
     })
 

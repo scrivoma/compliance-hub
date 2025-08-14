@@ -1,26 +1,30 @@
 import { NextResponse } from 'next/server'
-import { vectorDB } from '@/lib/vector-db/chroma'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 
 export async function GET() {
   try {
-    console.log('Testing ChromaDB connection...')
+    console.log('Testing Pinecone connection...')
     
     // Test environment variables
-    console.log('CHROMA_HOST:', process.env.CHROMA_HOST)
-    console.log('CHROMA_PORT:', process.env.CHROMA_PORT)
+    console.log('PINECONE_API_KEY exists:', !!process.env.PINECONE_API_KEY)
+    console.log('PINECONE_INDEX_NAME:', process.env.PINECONE_INDEX_NAME)
     console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY)
     
-    // Test ChromaDB initialization
-    await vectorDB.initialize()
-    console.log('ChromaDB initialized successfully')
+    // Test Pinecone search
+    const testResults = await pineconeService.searchDocuments('test', {
+      topK: 1,
+      minSimilarity: 0.1
+    })
+    console.log('Pinecone search successful, results:', testResults.length)
     
     return NextResponse.json({
       success: true,
-      message: 'ChromaDB connection successful',
+      message: 'Pinecone connection successful',
       config: {
-        host: process.env.CHROMA_HOST,
-        port: process.env.CHROMA_PORT,
-        hasOpenAIKey: !!process.env.OPENAI_API_KEY
+        indexName: process.env.PINECONE_INDEX_NAME,
+        hasPineconeKey: !!process.env.PINECONE_API_KEY,
+        hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+        testResults: testResults.length
       }
     })
     
@@ -33,8 +37,8 @@ export async function GET() {
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
         config: {
-          host: process.env.CHROMA_HOST,
-          port: process.env.CHROMA_PORT,
+          indexName: process.env.PINECONE_INDEX_NAME,
+          hasPineconeKey: !!process.env.PINECONE_API_KEY,
           hasOpenAIKey: !!process.env.OPENAI_API_KEY
         }
       },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { llamaIndexDocumentService } from '@/lib/services/llamaindex-document-service'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 import { loadRAGSettings, getEffectiveModel } from '@/lib/settings/rag-settings'
 import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
@@ -32,13 +32,23 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Citation search started:', query, 'Provider:', settings.llmProvider, 'Model:', effectiveModel)
 
-    // For non-streaming endpoint, we'll keep it simple and use the original query
-    // The streaming endpoint handles contextual query enhancement
+    // Use Pinecone for search instead of ChromaDB-based service
     const searchOptions = { 
       ...options, 
-      topK: settings.sourceDocuments 
+      topK: settings.sourceDocuments,
+      minSimilarity: 0.3
     }
-    const searchResults = await llamaIndexDocumentService.searchWithCitations(query, searchOptions)
+    const rawResults = await pineconeService.searchDocuments(query, searchOptions)
+    
+    // Format results to match expected citation structure
+    const searchResults = {
+      results: rawResults.map((result, index) => ({
+        text: result.text,
+        score: result.score,
+        citationId: `cite_${index}`,
+        metadata: result.metadata
+      }))
+    }
 
     if (searchResults.results.length === 0) {
       return NextResponse.json({

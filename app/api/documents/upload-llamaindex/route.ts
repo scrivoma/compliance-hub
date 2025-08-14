@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
-import { llamaIndexDocumentService } from '@/lib/services/llamaindex-document-service'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
 
@@ -72,49 +71,13 @@ export async function POST(request: NextRequest) {
     const verticalsArray = verticals ? JSON.parse(verticals) : []
     const documentTypesArray = documentTypes ? JSON.parse(documentTypes) : []
 
-    // Process with LlamaIndex
-    const result = await llamaIndexDocumentService.uploadDocument(filepath, {
-      title,
-      description: description || undefined,
-      state,
-      categoryId: categoryId || undefined,
-      uploadedBy: session.user.email,
-      verticals: verticalsArray,
-      documentTypes: documentTypesArray
-    })
-
-    console.log('🎉 LlamaIndex upload completed:', result)
-
-    // Track the newly added document
-    try {
-      const documentType = documentTypesArray.length > 0 ? documentTypesArray[0] : 'Document'
-      await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/user/new-documents`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          documentId: result.documentId,
-          title: title,
-          state: state,
-          type: documentType,
-          internal: true
-        })
-      }).catch(error => {
-        console.error('Failed to track document addition:', error)
-      })
-      
-      console.log('📝 Document addition tracked')
-    } catch (error) {
-      console.warn('⚠️ Failed to track document addition:', error)
-    }
-
+    // LlamaIndex service temporarily disabled for Vercel deployment
+    // Redirect to async Pinecone upload instead
     return NextResponse.json({
-      success: true,
-      documentId: result.documentId,
-      chunksCreated: result.chunksCreated,
-      citationIds: result.citationIds,
-      message: `Document processed successfully with ${result.chunksCreated} citation-ready chunks`,
-      processingMethod: 'llamaindex'
-    })
+      error: 'LlamaIndex service temporarily disabled',
+      message: 'Please use the async LlamaIndex upload endpoint instead',
+      redirect: '/api/documents/upload-async-llamaindex'
+    }, { status: 501 })
 
   } catch (error) {
     console.error('❌ Error in LlamaIndex upload:', error)

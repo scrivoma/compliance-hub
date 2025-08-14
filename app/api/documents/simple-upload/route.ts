@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
-import { vectorDB } from '@/lib/vector-db/chroma'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -18,22 +18,14 @@ export async function GET(request: NextRequest) {
       )
     }
     
-    console.log('Testing ChromaDB connection...')
-    await vectorDB.initialize()
-    console.log('ChromaDB initialized successfully')
+    console.log('Testing Pinecone connection...')
     
-    console.log('Testing vector DB add document...')
-    const testId = `test-${Date.now()}`
-    await vectorDB.addDocument({
-      id: testId,
-      content: 'This is a test document for compliance testing.',
-      metadata: {
-        title: 'Test Document',
-        state: 'NY',
-        type: 'test'
-      }
+    console.log('Testing Pinecone search...')
+    const testResults = await pineconeService.searchDocuments('test compliance', {
+      topK: 1,
+      minSimilarity: 0.1
     })
-    console.log('Test document added to vector DB')
+    console.log('Pinecone search successful, results:', testResults.length)
     
     console.log('Testing database connection...')
     const categories = await prisma.category.findMany()
@@ -42,7 +34,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'All systems working',
-      testId,
+      pineconeResults: testResults.length,
       categoriesCount: categories.length
     })
     

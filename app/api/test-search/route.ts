@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
-import { vectorDB } from '@/lib/vector-db/chroma'
+import { pineconeService } from '@/lib/pinecone/pinecone-service'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -31,11 +31,13 @@ export async function GET(request: NextRequest) {
     
     console.log(`Found ${documents.length} documents in database`)
     
-    // 2. Test ChromaDB search
-    console.log('Testing ChromaDB search...')
-    await vectorDB.initialize()
+    // 2. Test Pinecone search
+    console.log('Testing Pinecone search...')
     
-    const searchResults = await vectorDB.searchDocuments('licensing requirements', 3)
+    const searchResults = await pineconeService.searchDocuments('licensing requirements', {
+      topK: 3,
+      minSimilarity: 0.3
+    })
     console.log('Search results:', searchResults)
     
     // 3. Format results for display
@@ -51,19 +53,19 @@ export async function GET(request: NextRequest) {
         createdAt: documents[0].createdAt
       } : null,
       vectorSearchResults: {
-        found: searchResults.ids?.[0]?.length || 0,
-        results: searchResults.ids?.[0]?.map((id: string, index: number) => ({
-          id,
-          distance: searchResults.distances?.[0]?.[index],
-          text: searchResults.documents?.[0]?.[index]?.substring(0, 200) + '...',
-          metadata: searchResults.metadatas?.[0]?.[index]
-        })) || []
+        found: searchResults.length,
+        results: searchResults.map((result, index) => ({
+          id: `result_${index}`,
+          score: result.score,
+          text: result.text?.substring(0, 200) + '...' || 'No text',
+          metadata: result.metadata
+        }))
       }
     }
     
     return NextResponse.json({
       success: true,
-      summary: `Found ${documents.length} documents in database, ${searchResults.ids?.[0]?.length || 0} vector search results`,
+      summary: `Found ${documents.length} documents in database, ${searchResults.length} vector search results`,
       data: formattedResults
     })
     
