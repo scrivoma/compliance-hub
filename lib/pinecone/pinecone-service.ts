@@ -320,6 +320,37 @@ export class PineconeService {
       throw error
     }
   }
+
+  /**
+   * Clear all vectors from the index
+   */
+  async clearAllVectors(): Promise<void> {
+    console.log('🗑️ Clearing all vectors from Pinecone index')
+
+    try {
+      await this.initIndex()
+
+      // Get index stats to see if there are any vectors
+      const stats = await this.getIndexStats()
+      const totalCount = stats.totalVectorCount || 0
+      
+      if (totalCount === 0) {
+        console.log('ℹ️ Index is already empty')
+        return
+      }
+
+      console.log(`🔍 Found ${totalCount} vectors to delete`)
+      
+      // Delete all vectors by using deleteAll
+      await this.index.deleteAll()
+      
+      console.log('✅ Successfully cleared all vectors from Pinecone index')
+
+    } catch (error) {
+      console.error('❌ Error clearing all vectors from Pinecone:', error)
+      throw error
+    }
+  }
 }
 
 // Export singleton instance
