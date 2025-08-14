@@ -57,6 +57,48 @@ export async function POST(request: NextRequest) {
         "description" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )`,
+      
+      `CREATE TABLE IF NOT EXISTS "Document" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "title" TEXT NOT NULL,
+        "description" TEXT,
+        "filePath" TEXT NOT NULL,
+        "fileSize" INTEGER NOT NULL,
+        "state" TEXT NOT NULL,
+        "categoryId" TEXT,
+        "uploadedBy" TEXT NOT NULL,
+        "vectorId" TEXT,
+        "content" TEXT,
+        "metadata" JSONB,
+        "sourceUrl" TEXT,
+        "sourceType" TEXT NOT NULL DEFAULT 'PDF',
+        "processingStatus" TEXT NOT NULL DEFAULT 'UPLOADED',
+        "processingProgress" INTEGER NOT NULL DEFAULT 0,
+        "processingError" TEXT,
+        "totalChunks" INTEGER,
+        "processedChunks" INTEGER NOT NULL DEFAULT 0,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "agentSetDocumentId" TEXT,
+        "agentSetJobId" TEXT,
+        "pdfPath" TEXT,
+        "hasGeneratedPdf" BOOLEAN NOT NULL DEFAULT false,
+        "pdfGeneratedAt" TIMESTAMP
+      )`,
+      
+      `CREATE TABLE IF NOT EXISTS "DocumentVertical" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "documentId" TEXT NOT NULL,
+        "verticalId" TEXT NOT NULL,
+        UNIQUE("documentId", "verticalId")
+      )`,
+      
+      `CREATE TABLE IF NOT EXISTS "DocumentDocumentType" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "documentId" TEXT NOT NULL,
+        "documentTypeId" TEXT NOT NULL,
+        UNIQUE("documentId", "documentTypeId")
       )`
     ]
     
