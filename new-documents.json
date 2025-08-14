@@ -1,0 +1,404 @@
+{
+  "global": [
+    {
+      "id": "1755182366805",
+      "documentId": "cmebi9hn800008cblvvq00hho",
+      "title": "TestDocument2",
+      "state": "CO",
+      "type": "cmebi7dkb00098c2ni0u3le97",
+      "addedAt": "2025-08-14T14:39:26.805Z"
+    },
+    {
+      "id": "1755136954279",
+      "documentId": "cmear84kq00048cmzmq5xzr0l",
+      "title": "Michigan Regulation",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-08-14T02:02:34.279Z"
+    },
+    {
+      "id": "1755136709370",
+      "documentId": "cmear2vnq00008cmzkyzkr3oz",
+      "title": "Colorado Regulation",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-08-14T01:58:29.370Z"
+    },
+    {
+      "id": "1753712561222",
+      "documentId": "cmdn76gif000s8czaw1aa4f9m",
+      "title": "Internet_Sports_Betting_Rules_2020-8-26doc",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T14:22:41.222Z"
+    },
+    {
+      "id": "1753712533074",
+      "documentId": "cmdn75uld000o8cza5uhdqhhl",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T14:22:13.074Z"
+    },
+    {
+      "id": "1753712281708",
+      "documentId": "cmdn70gdc000k8cza8fmcwwbb",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T14:18:01.708Z"
+    },
+    {
+      "id": "1753711961078",
+      "documentId": "cmdn6tku8000g8czarq6uhj3h",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T14:12:41.078Z"
+    },
+    {
+      "id": "1753711046256",
+      "documentId": "cmdn69z1c000c8czavdaufku0",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T13:57:26.256Z"
+    },
+    {
+      "id": "1753710165590",
+      "documentId": "cmdn5r3a600088czao0yt2a2n",
+      "title": "Internet Sports Betting Rules",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T13:42:45.590Z"
+    },
+    {
+      "id": "1753709826804",
+      "documentId": "cmdn5ju4100048czavax9ucet",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T13:37:06.804Z"
+    },
+    {
+      "id": "1753709560078",
+      "documentId": "cmdn5e4dt00008czaxmvr3p4d",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T13:32:40.078Z"
+    },
+    {
+      "id": "1753707520468",
+      "documentId": "cmdn46ep800008c07a2azb884",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T12:58:40.468Z"
+    },
+    {
+      "id": "1753677416666",
+      "documentId": "cmdmm96sk000s8ca5q0nga4s2",
+      "title": "Internet_Sports_Betting_Rules_2020-8-26doc",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T04:36:56.666Z"
+    },
+    {
+      "id": "1753677303732",
+      "documentId": "cmdmm6re9000o8ca5aem0o4c3",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T04:35:03.732Z"
+    },
+    {
+      "id": "1753677208773",
+      "documentId": "cmdmm4q6q000k8ca5cudhrbzp",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T04:33:28.773Z"
+    },
+    {
+      "id": "1753676518990",
+      "documentId": "cmdmlpxzu000g8ca5dbytoygg",
+      "title": "Communication-Standards",
+      "state": "MI",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-28T04:21:58.990Z"
+    },
+    {
+      "id": "1753676123536",
+      "documentId": "cmdmlhgea000c8ca5nh9799xk",
+      "title": "Internet_Sports_Betting_Rules_2020-8-26doc",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T04:15:23.536Z"
+    },
+    {
+      "id": "1753675614304",
+      "documentId": "cmdml6k0300088ca5fdxiygwg",
+      "title": "20240826-Memo-LIGA-LSBA-Account-Withdrawal-Memo",
+      "state": "MI",
+      "type": "cmdl0zpkd000b8cxx057rhnhl",
+      "addedAt": "2025-07-28T04:06:54.304Z"
+    },
+    {
+      "id": "1753675517943",
+      "documentId": "cmdml4gtx00048ca5yv3dj1k0",
+      "title": "Internet_Sports_Betting_Rules_2020-8-26doc",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T04:05:17.943Z"
+    },
+    {
+      "id": "1753675005966",
+      "documentId": "cmdmktijf00008ca5yzql4wor",
+      "title": "20240826-Memo-LIGA-LSBA-Account-Withdrawal-Memo",
+      "state": "MI",
+      "type": "cmdl0zpkd000b8cxx057rhnhl",
+      "addedAt": "2025-07-28T03:56:45.966Z"
+    },
+    {
+      "id": "1753674783608",
+      "documentId": "cmdmkor0p000k8c2ppotyl68y",
+      "title": "20240826-Memo-LIGA-LSBA-Account-Withdrawal-Memo",
+      "state": "MI",
+      "type": "cmdl0zpkd000b8cxx057rhnhl",
+      "addedAt": "2025-07-28T03:53:03.608Z"
+    },
+    {
+      "id": "1753674546197",
+      "documentId": "cmdmkjnuh000g8c2pxbolx72w",
+      "title": "20240826-Memo-LIGA-LSBA-Account-Withdrawal-Memo",
+      "state": "MI",
+      "type": "cmdl0zpkd000b8cxx057rhnhl",
+      "addedAt": "2025-07-28T03:49:06.197Z"
+    },
+    {
+      "id": "1753674180035",
+      "documentId": "cmdmkbtao000c8c2p389t9nzq",
+      "title": "20240826-Memo-LIGA-LSBA-Account-Withdrawal-Memo",
+      "state": "MI",
+      "type": "cmdl0zpkd000b8cxx057rhnhl",
+      "addedAt": "2025-07-28T03:43:00.035Z"
+    },
+    {
+      "id": "1753672803876",
+      "documentId": "cmdmjibja00088c2pzr8axgt1",
+      "title": "Internet_Sports_Betting_Rules_2020-8-26doc",
+      "state": "MI",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-28T03:20:03.876Z"
+    },
+    {
+      "id": "1753672688146",
+      "documentId": "cmdmjfu0m00048c2ppxl8lsav",
+      "title": "SB 20Bulletin 203_0",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T03:18:08.146Z"
+    },
+    {
+      "id": "1753671641332",
+      "documentId": "cmdmitdzl00008c2pfufmh3ds",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-28T03:00:41.332Z"
+    },
+    {
+      "id": "1753666122519",
+      "documentId": "cmdmfj3tx00008c88ypzca80v",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T01:28:42.519Z"
+    },
+    {
+      "id": "1753665867749",
+      "documentId": "cmdmfdmm400008cjii1pdeag5",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-28T01:24:27.749Z"
+    },
+    {
+      "id": "1753665639009",
+      "documentId": "cmdmf8qqk00088cz4qn8qa4oo",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-28T01:20:39.009Z"
+    },
+    {
+      "id": "1753638420832",
+      "documentId": "cmdlz1d8o00048cz47dzaonow",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T17:47:00.832Z"
+    },
+    {
+      "id": "1753633550779",
+      "documentId": "cmdlw4zg200008cz4yfna3bhk",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T16:25:50.779Z"
+    },
+    {
+      "id": "1753632157807",
+      "documentId": "cmdlvb4no00088cax3xbn39nt",
+      "title": "SB 20Bulletin 201_1",
+      "state": "AZ",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-27T16:02:37.807Z"
+    },
+    {
+      "id": "1753601212313",
+      "documentId": "cmdlcvuvt00048caxbsjj7uq3",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T07:26:52.313Z"
+    },
+    {
+      "id": "1753600525130",
+      "documentId": "cmdlch4jd00008cax7sff3kc6",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T07:15:25.130Z"
+    },
+    {
+      "id": "1753596846791",
+      "documentId": "cmdlaaahq00008czjx628cby4",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-27T06:14:06.791Z"
+    },
+    {
+      "id": "1753595980952",
+      "documentId": "cmdl9rqaz000g8c4irl7wrjcw",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkd000c8cxxjjnd3ulb",
+      "addedAt": "2025-07-27T05:59:40.952Z"
+    },
+    {
+      "id": "1753595027981",
+      "documentId": "cmdl97b3p000c8c4it3h5z700",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-27T05:43:47.981Z"
+    },
+    {
+      "id": "1753594249739",
+      "documentId": "cmdl8qmid00088c4iooenbxhg",
+      "title": "1CCR 20207-2 20SB 20Combined 20Rules 20061424",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-27T05:30:49.739Z"
+    },
+    {
+      "id": "1753594071939",
+      "documentId": "cmdl8mtfo00048c4izqm4aoo0",
+      "title": "SB 20Rule 202 20051522",
+      "state": "CO",
+      "type": "cmdl0zpkb00088cxxkh2n48hm",
+      "addedAt": "2025-07-27T05:27:51.939Z"
+    },
+    {
+      "id": "1753593974981",
+      "documentId": "cmdl8kqrp00008c4irpckdgbx",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-27T05:26:14.981Z"
+    },
+    {
+      "id": "1753591158859",
+      "documentId": "cmdl6wdpu00048c0ztvwe9r08",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T04:39:18.859Z"
+    },
+    {
+      "id": "1753591011226",
+      "documentId": "cmdl6t7xw00008c0zqcfwi4xt",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T04:36:51.226Z"
+    },
+    {
+      "id": "1753582654432",
+      "documentId": "cmdl1u3oa00048crc5ysldscd",
+      "title": "SB 20Bulletin 202_0",
+      "state": "CO",
+      "type": "cmdl0zpkc000a8cxxqzzwdfml",
+      "addedAt": "2025-07-27T02:17:34.433Z"
+    },
+    {
+      "id": "1753582053517",
+      "documentId": "cmdl1h7ym00008crcaumfbvry",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T02:07:33.517Z"
+    },
+    {
+      "id": "1753581442791",
+      "documentId": "cmdl144pj00008cauo22b3h6n",
+      "title": "SB 20Bulletin 201_1",
+      "state": "AL",
+      "type": "cmdl0zpkc00098cxxl70n5y8r",
+      "addedAt": "2025-07-27T01:57:22.791Z"
+    },
+    {
+      "id": "1753577636890",
+      "documentId": "cmdkyuk2m00008cswi93yyefv",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmd1ask9n00098c0zwqedkov8",
+      "addedAt": "2025-07-27T00:53:56.890Z"
+    },
+    {
+      "id": "1753568685573",
+      "documentId": "cmdktip8y00008c67kjtyescx",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmd1ask9n00098c0zwqedkov8",
+      "addedAt": "2025-07-26T22:24:45.573Z"
+    },
+    {
+      "id": "1753568327364",
+      "documentId": "cmdktb0sa000g8cjw0hiscgjr",
+      "title": "SB 20Bulletin 201_1",
+      "state": "CO",
+      "type": "cmd1ask9n00098c0zwqedkov8",
+      "addedAt": "2025-07-26T22:18:47.364Z"
+    },
+    {
+      "id": "1753567584720",
+      "documentId": "cmdksv3py00088cjwgfrg9oc7",
+      "title": "Colorado Limited Gaming Act with Constitutional Amendment",
+      "state": "CO",
+      "type": "cmd1ask9l00078c0z9saf6v7s",
+      "addedAt": "2025-07-26T22:06:24.720Z"
+    },
+    {
+      "id": "1753564815167",
+      "documentId": "cmdkr7qt200008cjwj1bwxe6p",
+      "title": "1CCR 20207-2 Combined Sports Betting Rules",
+      "state": "CO",
+      "type": "cmd1ask9m00088c0zexnor58y",
+      "addedAt": "2025-07-26T21:20:15.167Z"
+    }
+  ]
+}

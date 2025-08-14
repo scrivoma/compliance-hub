@@ -1,0 +1,33 @@
+node_modules
+# Keep environment variables out of version control
+.env
+.env*.local
+
+/lib/generated/prisma
+
+# Development data storage
+bookmarks.json
+recent-searches.json
+recent-documents.json
+
+# Next.js
+/.next/
+/out/
+/build
+
+# Database
+*.db
+*.db-journal
+prisma/dev.db
+
+# Uploads
+uploads/
+temp/
+
+# Cache
+chroma_data/
+.llamaparse_cache/
+
+# Misc
+.DS_Store
+*.log

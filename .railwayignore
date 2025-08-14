@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.git/
+*.log
+.DS_Store
+prisma/dev.db
+prisma/migrations/
+uploads/
+temp/
+.env.local
+.vercel/
+dist/
+build/
+coverage/
+*.tgz
+*.tar.gz

@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-07-27T07:22:50.949Z",
+  "testCases": 4,
+  "documentsProcessed": 1,
+  "agentSetPerformance": {
+    "successfulQueries": 0,
+    "failedQueries": 4,
+    "averageProcessingTime": null,
+    "totalCitationsFound": 0
+  },
+  "recommendations": [
+    "❌ 4 queries failed",
+    "❌ No citations returned by AgentSet.ai",
+    "⚠️ Slower response times (> 2s average)"
+  ]
+}

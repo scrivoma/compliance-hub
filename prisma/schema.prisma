@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String                     @id @default(cuid())
+  email                     String                     @unique
+  password                  String
+  name                      String
+  organization              String
+  role                      String                     @default("USER")
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+  annotations               Annotation[]
+  searchHistory             SearchHistory[]
+  annotationPreferences     UserAnnotationPreferences?
+}
+
+model Vertical {
+  id          String             @id @default(cuid())
+  name        String             @unique
+  displayName String
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  documents   DocumentVertical[]
+}
+
+model DocumentType {
+  id          String                 @id @default(cuid())
+  name        String                 @unique
+  displayName String
+  description String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  documents   DocumentDocumentType[]
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  documents   Document[]
+}
+
+model Document {
+  id                 String                 @id @default(cuid())
+  title              String
+  description        String?
+  filePath           String
+  fileSize           Int
+  state              String
+  categoryId         String?
+  uploadedBy         String
+  vectorId           String?
+  content            String?
+  metadata           Json?
+  sourceUrl          String?
+  sourceType         String                 @default("PDF")
+  processingStatus   String                 @default("UPLOADED")
+  processingProgress Int                    @default(0)
+  processingError    String?
+  totalChunks        Int?
+  processedChunks    Int                    @default(0)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  agentSetDocumentId String?
+  agentSetJobId      String?
+  // PDF-specific fields for Adobe PDF Embed API
+  pdfPath            String?                // Path to generated/uploaded PDF
+  hasGeneratedPdf    Boolean                @default(false)
+  pdfGeneratedAt     DateTime?
+  // Relations
+  annotations        Annotation[]
+  category           Category?              @relation(fields: [categoryId], references: [id])
+  documentTypes      DocumentDocumentType[]
+  verticals          DocumentVertical[]
+
+  @@index([state])
+  @@index([categoryId])
+  @@index([title])
+  @@index([processingStatus])
+  @@index([sourceType])
+  @@index([hasGeneratedPdf])
+}
+
+model DocumentVertical {
+  id         String   @id @default(cuid())
+  documentId String
+  verticalId String
+  vertical   Vertical @relation(fields: [verticalId], references: [id])
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, verticalId])
+  @@index([documentId])
+  @@index([verticalId])
+}
+
+model DocumentDocumentType {
+  id             String       @id @default(cuid())
+  documentId     String
+  documentTypeId String
+  documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
+  document       Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, documentTypeId])
+  @@index([documentId])
+  @@index([documentTypeId])
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  results   Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Annotation {
+  id         String   @id @default(cuid())
+  documentId String
+  userId     String
+  type       String   @default("highlight") // highlight, sticky-note, strikethrough, underline, drawing, comment
+  content    Json
+  position   Json
+  pageNumber Int      @default(1)
+  comment    String?
+  color      String   @default("#FFFF00")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([userId])
+  @@index([type])
+  @@index([pageNumber])
+}
+
+model UserAnnotationPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  defaultColor    String   @default("#FFFF00")
+  showCoachMarks  Boolean  @default(true)
+  preferences     Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

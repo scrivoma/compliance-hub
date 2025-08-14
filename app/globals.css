@@ -1,0 +1,329 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262.1 83.3% 57.8%;
+    --radius: 0.5rem;
+    
+    /* Custom variables for consistent theming */
+    --pdf-bg: 255 255 255;
+    --pdf-text: 0 0 0;
+    --sidebar-bg: 248 250 252;
+    --sidebar-border: 226 232 240;
+  }
+
+  .dark {
+    /* Custom dark mode variables */
+    --pdf-bg: 31 41 55;
+    --pdf-text: 229 231 235;
+    --sidebar-bg: 17 24 39;
+    --sidebar-border: 55 65 81;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 262.1 83.3% 57.8%;
+  }
+}
+
+/* React PDF Highlighter Overrides */
+.PdfHighlighter .highlight__part {
+  opacity: 0.4 !important;
+}
+
+/* Color-specific highlight classes */
+.highlight-yellow .highlight__part {
+  background-color: #FFFF00 !important;
+}
+
+.highlight-green .highlight__part {
+  background-color: #90EE90 !important;
+}
+
+.highlight-blue .highlight__part {
+  background-color: #87CEEB !important;
+}
+
+.highlight-pink .highlight__part {
+  background-color: #FFB6C1 !important;
+}
+
+.highlight-orange .highlight__part {
+  background-color: #FFA500 !important;
+}
+
+.highlight-purple .highlight__part {
+  background-color: #DDA0DD !important;
+}
+
+/* Dark mode PDF highlighting adjustments */
+.dark .PdfHighlighter .highlight__part {
+  opacity: 0.6 !important;
+}
+
+.dark .highlight-yellow .highlight__part {
+  background-color: #FFD700 !important;
+}
+
+.dark .highlight-green .highlight__part {
+  background-color: #98FB98 !important;
+}
+
+.dark .highlight-blue .highlight__part {
+  background-color: #87CEFA !important;
+}
+
+.dark .highlight-pink .highlight__part {
+  background-color: #FFC0CB !important;
+}
+
+.dark .highlight-orange .highlight__part {
+  background-color: #FFB347 !important;
+}
+
+.dark .highlight-purple .highlight__part {
+  background-color: #E6E6FA !important;
+}
+
+@layer base {
+  input[type="text"],
+  input[type="email"], 
+  input[type="password"] {
+    @apply px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+  }
+
+  /* Enhanced dark mode styles for better PDF viewing */
+  .dark .react-pdf__Page {
+    filter: invert(0.88) hue-rotate(180deg);
+  }
+
+  .dark .react-pdf__Page img {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  /* Better text selection in dark mode */
+  .dark ::selection {
+    background-color: rgba(99, 102, 241, 0.3);
+    color: inherit;
+  }
+
+  .dark ::-moz-selection {
+    background-color: rgba(99, 102, 241, 0.3);
+    color: inherit;
+  }
+}
+
+/* React-PDF Text Layer Styles */
+.react-pdf__Page {
+  position: relative;
+}
+
+.react-pdf__Page__textContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.2;
+  line-height: 1.0;
+}
+
+.react-pdf__Page__textContent .textLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.2;
+  line-height: 1.0;
+}
+
+.react-pdf__Page__textContent span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.react-pdf__Page__textContent span.markedContent {
+  position: absolute;
+}
+
+.react-pdf__Page__textContent .highlight {
+  margin: -1px;
+  padding: 1px;
+  background-color: rgba(180, 0, 170, 0.2);
+  border-radius: 4px;
+}
+
+/* Custom highlighting styles */
+.react-pdf__Page__textContent span.highlight-text {
+  background-color: yellow !important;
+  color: black !important;
+  opacity: 1 !important;
+  padding: 2px;
+  border-radius: 3px;
+}
+
+/* Dark mode highlighting adjustments */
+.dark .react-pdf__Page__textContent span.highlight-text {
+  background-color: #FFD700 !important;
+  color: #1F2937 !important;
+}
+
+.dark .react-pdf__Page__textContent .highlight {
+  background-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Scrollbar styling for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6B7280;
+  border-radius: 4px;
+  border: 1px solid #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Enhanced modal and overlay dark mode support */
+.dark .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.dark .modal-content {
+  background-color: #1F2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+/* Better focus states for dark mode */
+.dark *:focus {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.dark button:focus,
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  ring-color: #6366F1;
+}
+
+/* Annotation layer styles */
+.react-pdf__Page__annotations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.react-pdf__Page__annotations .annotationLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Dark mode annotation adjustments */
+.dark .react-pdf__Page__annotations {
+  filter: invert(0.88) hue-rotate(180deg);
+}
+
+/* Enhanced loading and error states for dark mode */
+.dark .loading-spinner {
+  border-color: #6B7280;
+  border-top-color: #6366F1;
+}
+
+.dark .error-state {
+  background-color: #7F1D1D;
+  color: #FCA5A5;
+  border-color: #991B1B;
+}
+
+/* Better code highlighting in dark mode */
+.dark code {
+  background-color: #374151;
+  color: #E5E7EB;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.dark pre {
+  background-color: #1F2937;
+  color: #E5E7EB;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #374151;
+}
+
+/* Print styles for better readability */
+@media print {
+  .dark {
+    color: black !important;
+    background: white !important;
+  }
+  
+  .dark * {
+    color: black !important;
+    background: white !important;
+    box-shadow: none !important;
+  }
+}

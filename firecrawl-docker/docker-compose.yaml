@@ -1,0 +1,110 @@
+services:
+  playwright-service:
+    build:
+      context: ./firecrawl/apps/playwright-service-ts
+      dockerfile: Dockerfile
+    environment:
+      - PORT=3000
+      - PROXY_SERVER=${PROXY_SERVER}
+      - PROXY_USERNAME=${PROXY_USERNAME}
+      - PROXY_PASSWORD=${PROXY_PASSWORD}
+      - BLOCK_MEDIA=${BLOCK_MEDIA}
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ./firecrawl/apps/api
+      dockerfile: Dockerfile
+    environment:
+      # Core settings
+      - HOST=0.0.0.0
+      - PORT=3002
+      - ENV=production
+      
+      # Redis configuration
+      - REDIS_URL=redis://redis:6379
+      - REDIS_RATE_LIMIT_URL=redis://redis:6379
+      
+      # Worker configuration
+      - NUM_WORKERS_PER_QUEUE=8
+      - BULL_AUTH_KEY=${BULL_AUTH_KEY}
+      
+      # Authentication
+      - USE_DB_AUTHENTICATION=${USE_DB_AUTHENTICATION:-false}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_TOKEN=${SUPABASE_SERVICE_TOKEN}
+      
+      # API Keys for enhanced features
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLAMAPARSE_API_KEY=${LLAMAPARSE_API_KEY}  # CRITICAL for PDF quality!
+      - SERPER_API_KEY=${SERPER_API_KEY}
+      - SEARCHAPI_API_KEY=${SEARCHAPI_API_KEY}
+      
+      # Optional integrations
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - POSTHOG_API_KEY=${POSTHOG_API_KEY}
+      - POSTHOG_HOST=${POSTHOG_HOST}
+      
+      # Playwright service
+      - PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOGGING_LEVEL=${LOGGING_LEVEL:-INFO}
+    ports:
+      - "3002:3002"
+    depends_on:
+      - redis
+      - playwright-service
+    networks:
+      - backend
+    command: ["pnpm", "run", "start:production"]
+    volumes:
+      - ./logs:/app/logs
+
+  worker:
+    build:
+      context: ./firecrawl/apps/api
+      dockerfile: Dockerfile
+    environment:
+      # Same environment as API service
+      - ENV=production
+      - REDIS_URL=redis://redis:6379
+      - REDIS_RATE_LIMIT_URL=redis://redis:6379
+      - NUM_WORKERS_PER_QUEUE=8
+      - BULL_AUTH_KEY=${BULL_AUTH_KEY}
+      - USE_DB_AUTHENTICATION=${USE_DB_AUTHENTICATION:-false}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_TOKEN=${SUPABASE_SERVICE_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLAMAPARSE_API_KEY=${LLAMAPARSE_API_KEY}
+      - SERPER_API_KEY=${SERPER_API_KEY}
+      - SEARCHAPI_API_KEY=${SEARCHAPI_API_KEY}
+      - PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOGGING_LEVEL=${LOGGING_LEVEL:-INFO}
+    depends_on:
+      - redis
+      - playwright-service
+      - api
+    networks:
+      - backend
+    command: ["pnpm", "run", "workers"]
+    volumes:
+      - ./logs:/app/logs
+
+  redis:
+    image: redis:alpine
+    networks:
+      - backend
+    command: redis-server --bind 0.0.0.0
+    volumes:
+      - redis-data:/data
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  redis-data:
