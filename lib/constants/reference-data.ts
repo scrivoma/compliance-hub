@@ -17,6 +17,8 @@ export interface DocumentType {
   description?: string
 }
 
+// Use the name field as ID for compatibility with backend validation
+// Backend will now accept either database IDs or these name-based IDs
 export const STATIC_VERTICALS: Vertical[] = [
   { 
     id: 'fantasy-sports', 

@@ -61,27 +61,95 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify verticals and document types exist
-    const [existingVerticals, existingDocTypes] = await Promise.all([
-      prisma.vertical.findMany({
-        where: { id: { in: verticalIds } },
-        select: { id: true }
-      }),
-      prisma.documentType.findMany({
-        where: { id: { in: documentTypeIds } },
-        select: { id: true }
+    // First try by ID, then by name (for backward compatibility with static data)
+    let existingVerticals = await prisma.vertical.findMany({
+      where: { id: { in: verticalIds } },
+      select: { id: true, name: true }
+    })
+    
+    // If not found by ID, try by name
+    if (existingVerticals.length === 0) {
+      existingVerticals = await prisma.vertical.findMany({
+        where: { name: { in: verticalIds } },
+        select: { id: true, name: true }
       })
-    ])
+    }
+    
+    // If still not found, create them from known static values
+    if (existingVerticals.length === 0) {
+      const knownVerticals = ['fantasy-sports', 'igaming', 'ilottery', 'landbased', 'lottery', 'sports-online', 'sports-retail']
+      const verticalsToCreate = verticalIds.filter((v: string) => knownVerticals.includes(v))
+      
+      if (verticalsToCreate.length > 0) {
+        // Create missing verticals
+        for (const name of verticalsToCreate) {
+          const displayName = name.split('-').map((w: string) => 
+            w.charAt(0).toUpperCase() + w.slice(1)
+          ).join(' ')
+          
+          await prisma.vertical.upsert({
+            where: { name },
+            update: {},
+            create: { name, displayName }
+          })
+        }
+        
+        existingVerticals = await prisma.vertical.findMany({
+          where: { name: { in: verticalIds } },
+          select: { id: true, name: true }
+        })
+      }
+    }
+    
+    let existingDocTypes = await prisma.documentType.findMany({
+      where: { id: { in: documentTypeIds } },
+      select: { id: true, name: true }
+    })
+    
+    // If not found by ID, try by name
+    if (existingDocTypes.length === 0) {
+      existingDocTypes = await prisma.documentType.findMany({
+        where: { name: { in: documentTypeIds } },
+        select: { id: true, name: true }
+      })
+    }
+    
+    // If still not found, create them from known static values
+    if (existingDocTypes.length === 0) {
+      const knownDocTypes = ['aml', 'data', 'formal-guidance', 'informal-guidance', 'licensing-forms', 'other', 'regulation', 'statute', 'technical-bulletin']
+      const docTypesToCreate = documentTypeIds.filter((dt: string) => knownDocTypes.includes(dt))
+      
+      if (docTypesToCreate.length > 0) {
+        // Create missing document types
+        for (const name of docTypesToCreate) {
+          const displayName = name.split('-').map((w: string) => 
+            w.charAt(0).toUpperCase() + w.slice(1)
+          ).join(' ')
+          
+          await prisma.documentType.upsert({
+            where: { name },
+            update: {},
+            create: { name, displayName }
+          })
+        }
+        
+        existingDocTypes = await prisma.documentType.findMany({
+          where: { name: { in: documentTypeIds } },
+          select: { id: true, name: true }
+        })
+      }
+    }
 
-    if (existingVerticals.length !== verticalIds.length) {
+    if (existingVerticals.length === 0) {
       return NextResponse.json(
-        { error: 'One or more selected verticals do not exist' },
+        { error: 'One or more selected verticals do not exist and could not be created' },
         { status: 400 }
       )
     }
 
-    if (existingDocTypes.length !== documentTypeIds.length) {
+    if (existingDocTypes.length === 0) {
       return NextResponse.json(
-        { error: 'One or more selected document types do not exist' },
+        { error: 'One or more selected document types do not exist and could not be created' },
         { status: 400 }
       )
     }
@@ -210,20 +278,20 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Create vertical relationships
-      const verticalConnections = verticalIds.map((verticalId: string) => ({
+      // Create vertical relationships using resolved IDs
+      const verticalConnections = existingVerticals.map((vertical) => ({
         documentId: document.id,
-        verticalId
+        verticalId: vertical.id
       }))
       
       await tx.documentVertical.createMany({
         data: verticalConnections
       })
 
-      // Create document type relationships
-      const typeConnections = documentTypeIds.map((typeId: string) => ({
+      // Create document type relationships using resolved IDs
+      const typeConnections = existingDocTypes.map((docType) => ({
         documentId: document.id,
-        documentTypeId: typeId
+        documentTypeId: docType.id
       }))
       
       await tx.documentDocumentType.createMany({

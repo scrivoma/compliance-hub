@@ -76,6 +76,65 @@ export async function POST(request: NextRequest) {
     const verticalsArray = verticals ? JSON.parse(verticals) : []
     const documentTypesArray = documentTypes ? JSON.parse(documentTypes) : []
 
+    // Resolve verticals and document types (handle both IDs and names)
+    let resolvedVerticals = await prisma.vertical.findMany({
+      where: { 
+        OR: [
+          { id: { in: verticalsArray } },
+          { name: { in: verticalsArray } }
+        ]
+      }
+    })
+    
+    // Auto-create missing verticals from known static values
+    if (resolvedVerticals.length === 0 && verticalsArray.length > 0) {
+      const knownVerticals = ['fantasy-sports', 'igaming', 'ilottery', 'landbased', 'lottery', 'sports-online', 'sports-retail']
+      for (const v of verticalsArray) {
+        if (knownVerticals.includes(v)) {
+          const displayName = v.split('-').map((w: string) => 
+            w === 'sports' ? 'Sports' : w.charAt(0).toUpperCase() + w.slice(1)
+          ).join(' ')
+          await prisma.vertical.upsert({
+            where: { name: v },
+            update: {},
+            create: { name: v, displayName }
+          })
+        }
+      }
+      resolvedVerticals = await prisma.vertical.findMany({
+        where: { name: { in: verticalsArray } }
+      })
+    }
+    
+    let resolvedDocTypes = await prisma.documentType.findMany({
+      where: { 
+        OR: [
+          { id: { in: documentTypesArray } },
+          { name: { in: documentTypesArray } }
+        ]
+      }
+    })
+    
+    // Auto-create missing document types from known static values
+    if (resolvedDocTypes.length === 0 && documentTypesArray.length > 0) {
+      const knownDocTypes = ['aml', 'data', 'formal-guidance', 'informal-guidance', 'licensing-forms', 'other', 'regulation', 'statute', 'technical-bulletin']
+      for (const dt of documentTypesArray) {
+        if (knownDocTypes.includes(dt)) {
+          const displayName = dt.split('-').map((w: string) => 
+            w.charAt(0).toUpperCase() + w.slice(1)
+          ).join(' ')
+          await prisma.documentType.upsert({
+            where: { name: dt },
+            update: {},
+            create: { name: dt, displayName }
+          })
+        }
+      }
+      resolvedDocTypes = await prisma.documentType.findMany({
+        where: { name: { in: documentTypesArray } }
+      })
+    }
+
     // Create document record with UPLOADED status
     const document = await prisma.document.create({
       data: {
@@ -98,21 +157,21 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Add relationships
-    if (verticalsArray.length > 0) {
+    // Add relationships using resolved IDs
+    if (resolvedVerticals.length > 0) {
       await prisma.documentVertical.createMany({
-        data: verticalsArray.map((verticalId: string) => ({
+        data: resolvedVerticals.map((vertical) => ({
           documentId: document.id,
-          verticalId
+          verticalId: vertical.id
         }))
       })
     }
 
-    if (documentTypesArray.length > 0) {
+    if (resolvedDocTypes.length > 0) {
       await prisma.documentDocumentType.createMany({
-        data: documentTypesArray.map((documentTypeId: string) => ({
+        data: resolvedDocTypes.map((docType) => ({
           documentId: document.id,
-          documentTypeId
+          documentTypeId: docType.id
         }))
       })
     }
