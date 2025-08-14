@@ -1,10 +1,23 @@
 import { withAuth } from 'next-auth/middleware'
+import { NextResponse } from 'next/server'
 
-export default withAuth({
-  pages: {
-    signIn: '/login',
+export default withAuth(
+  function middleware(req) {
+    // Middleware function runs after authentication check
+    return NextResponse.next()
   },
-})
+  {
+    callbacks: {
+      authorized: ({ token }) => {
+        // Return true if user has a valid token
+        return !!token
+      },
+    },
+    pages: {
+      signIn: '/login',
+    },
+  }
+)
 
 export const config = {
   matcher: [
