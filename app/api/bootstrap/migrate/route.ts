@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
     
     console.log('⚙️ Creating database schema...')
     
-    // Create tables using raw SQL - simplified version for bootstrap
-    const createTablesSQL = `
-      CREATE TABLE IF NOT EXISTS "User" (
+    // Create tables using separate SQL commands
+    const createTableCommands = [
+      `CREATE TABLE IF NOT EXISTS "User" (
         "id" TEXT NOT NULL PRIMARY KEY,
         "email" TEXT NOT NULL UNIQUE,
         "password" TEXT NOT NULL,
@@ -31,38 +31,40 @@ export async function POST(request: NextRequest) {
         "role" TEXT NOT NULL DEFAULT 'USER',
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
+      )`,
       
-      CREATE TABLE IF NOT EXISTS "Category" (
+      `CREATE TABLE IF NOT EXISTS "Category" (
         "id" TEXT NOT NULL PRIMARY KEY,
         "name" TEXT NOT NULL UNIQUE,
         "description" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
+      )`,
       
-      CREATE TABLE IF NOT EXISTS "Vertical" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "name" TEXT NOT NULL UNIQUE,
-        "displayName" TEXT NOT NULL,
-        "description" TEXT,
-        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-      
-      CREATE TABLE IF NOT EXISTS "DocumentType" (
+      `CREATE TABLE IF NOT EXISTS "Vertical" (
         "id" TEXT NOT NULL PRIMARY KEY,
         "name" TEXT NOT NULL UNIQUE,
         "displayName" TEXT NOT NULL,
         "description" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `
+      )`,
+      
+      `CREATE TABLE IF NOT EXISTS "DocumentType" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL UNIQUE,
+        "displayName" TEXT NOT NULL,
+        "description" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )`
+    ]
     
     try {
-      // Execute the SQL to create basic tables
-      await prisma.$executeRawUnsafe(createTablesSQL)
+      // Execute each SQL command separately
+      for (const command of createTableCommands) {
+        await prisma.$executeRawUnsafe(command)
+      }
       
       console.log('✅ Basic database schema created successfully')
       
