@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { Search, Send, FileText, MapPin, Clock, ExternalLink, ChevronDown, ChevronUp, MessageCircle, Plus, Filter, Settings, Globe } from 'lucide-react'
 import { SlideOutDocumentViewer } from '@/components/documents/slide-out-document-viewer'
 import { MultiStateResults } from '@/components/search/MultiStateResults'
@@ -14,7 +14,10 @@ import { useSearchParams } from 'next/navigation'
 import { MentionInput } from '@/components/search/MentionInput'
 import { parseQueryMentions } from '@/lib/utils/mention-parser'
 
-export default function SearchPage() {
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
+function SearchContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState('')
   const [result, setResult] = useState<{
@@ -1968,5 +1971,13 @@ export default function SearchPage() {
         />
       )}
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchContent />
+    </Suspense>
   )
 }

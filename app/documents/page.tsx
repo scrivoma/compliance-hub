@@ -5,6 +5,9 @@ import { Library } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
+// Force dynamic rendering to prevent prerendering issues
+export const dynamic = 'force-dynamic'
+
 function DocumentsContent() {
   const searchParams = useSearchParams()
   const viewDocumentId = searchParams.get('view')
