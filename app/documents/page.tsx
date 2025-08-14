@@ -3,8 +3,9 @@
 import { ModernDocumentLibrary } from '@/components/documents/modern-document-library'
 import { Library } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function DocumentsPage() {
+function DocumentsContent() {
   const searchParams = useSearchParams()
   const viewDocumentId = searchParams.get('view')
 
@@ -35,5 +36,13 @@ export default function DocumentsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DocumentsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DocumentsContent />
+    </Suspense>
   )
 }
