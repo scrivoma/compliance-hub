@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { llamaIndexDocumentService } from '@/lib/services/llamaindex-document-service'
 import { PrismaClient } from '@prisma/client'
-import { processDocumentWithFallback } from '@/lib/pdf/llamaindex-processor'
+import { processDocumentWithFallback } from '@/lib/pdf/llamaindex-processor-stub'
 import { openai } from '@/lib/openai'
 import { ChromaClient } from 'chromadb'
 

@@ -1,6 +1,7 @@
-import { spawn } from 'child_process'
-import path from 'path'
-import { promises as fs } from 'fs'
+// Temporarily disabled llamaindex for Vercel deployment
+// import { spawn } from 'child_process'
+// import path from 'path'
+// import { promises as fs } from 'fs'
 
 export interface CoordinateData {
   page: number

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { processDocumentWithFallback, type ProcessedDocument, type DocumentChunk } from '../pdf/llamaindex-processor'
+import { processDocumentWithFallback, type ProcessedDocument, type DocumentChunk } from '../pdf/llamaindex-processor-stub'
 import { openai } from '../openai'
 import { ChromaClient } from 'chromadb'
 import path from 'path'
