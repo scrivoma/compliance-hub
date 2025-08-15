@@ -316,5 +316,8 @@ export async function processDocumentWithFallback(filePath: string): Promise<Pro
         extractedAt: new Date().toISOString()
       }
     }
+  } catch (error) {
+    console.error('❌ Error in fallback processing:', error)
+    throw error
   }
 }
