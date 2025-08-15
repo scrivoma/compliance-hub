@@ -62,15 +62,18 @@ export async function POST(request: NextRequest) {
       type: file.type
     })
 
-    // Save file to uploads directory
+    // Save file to temp directory (Vercel serverless compatible)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
-    const filepath = join(process.cwd(), 'public', 'uploads', filename)
+    
+    // Use /tmp directory which is available in Vercel serverless functions
+    const tmpDir = '/tmp'
+    const filepath = join(tmpDir, filename)
     
     await writeFile(filepath, buffer)
-    console.log('💾 File saved to:', filepath)
+    console.log('💾 File saved to temp directory:', filepath)
 
     // Parse arrays
     const verticalsArray = verticals ? JSON.parse(verticals) : []
@@ -140,7 +143,7 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description: description || undefined,
-        filePath: filename,
+        filePath: filepath,
         fileSize: file.size,
         state,
         uploadedBy: session.user.email,

@@ -182,9 +182,9 @@ export async function POST(request: NextRequest) {
     const title = providedTitle || scrapedDoc.title
     const description = providedDescription || scrapedDoc.description || undefined
 
-    // Create uploads directory
-    const uploadsDir = join(process.cwd(), 'public', 'uploads')
-    await mkdir(uploadsDir, { recursive: true })
+    // Use temp directory for Vercel serverless compatibility
+    const uploadsDir = '/tmp'
+    // No need to create /tmp directory - it exists in serverless functions
 
     let filename: string
     let content: string
