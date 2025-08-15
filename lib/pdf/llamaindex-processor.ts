@@ -1,7 +1,7 @@
-// Temporarily disabled llamaindex for Vercel deployment
+// Temporarily disabled llamaindex for Vercel deployment due to package bug
 // import { spawn } from 'child_process'
 // import path from 'path'
-// import { promises as fs } from 'fs'
+import { promises as fs } from 'fs'
 
 export interface CoordinateData {
   page: number
@@ -257,11 +257,11 @@ export async function processDocumentWithFallback(filePath: string): Promise<Pro
     }
   }
   
+  // Temporarily disable LlamaIndex due to hardcoded test file bug in v0.11.26
+  console.warn('⚠️ LlamaIndex disabled due to package bug, using fallback processor')
+  
+  // Use fallback processor directly
   try {
-    return await processDocumentWithLlamaIndex(filePath)
-  } catch (error) {
-    console.warn('⚠️ LlamaIndex processing failed, falling back to original processor')
-    
     // Import original processor
     const { extractTextFromPDF, chunkText } = await import('./processor')
     const fileBuffer = await fs.readFile(filePath)

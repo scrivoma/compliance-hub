@@ -39,6 +39,9 @@ export class LlamaParseService {
   async parsePdfFile(filePath: string): Promise<ParsedDocument> {
     console.log('📄 LlamaParse: Starting PDF parsing for file:', filePath)
     
+    // Temporarily disable LlamaParse due to hardcoded test file bug in v0.11.26
+    throw new Error('LlamaParse temporarily disabled due to package bug - using fallback processor')
+    
     try {
       const reader = this.initializeReader()
       

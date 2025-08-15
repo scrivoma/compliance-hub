@@ -217,6 +217,19 @@ export async function POST(request: NextRequest) {
       })
       
       // Process document with LlamaParse/fallback
+      console.log('🔍 DEBUG: Processing file at path:', filepath)
+      console.log('🔍 DEBUG: File exists check before processing...')
+      
+      // Verify file exists before processing
+      const { stat } = await import('fs/promises')
+      try {
+        const fileStats = await stat(filepath)
+        console.log('✅ File exists, size:', fileStats.size)
+      } catch (error) {
+        console.error('❌ File not found at path:', filepath, error)
+        throw new Error(`File not found at path: ${filepath}`)
+      }
+      
       const processed = await processDocumentWithFallback(filepath)
       
       // Update status to chunking
